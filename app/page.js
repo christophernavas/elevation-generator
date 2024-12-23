@@ -20,7 +20,7 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
   };
 
   return (
-    <div className={cn("card bg-neutral", className)}>
+    <div className={cn("card bg-neutral text-neutral-content", className)}>
       <div className="card-body">
         <h1 className="text-2xl pb-2">Settings</h1>
         <form className="flex flex-col gap-5">
@@ -38,7 +38,13 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
               type="range"
               min={0}
               max="99"
-              value={10}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  padding: e.target.value,
+                })
+              }
+              value={settings.padding}
               className="range range-primary"
             />
           </div>
@@ -48,7 +54,13 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
               type="range"
               min={0}
               max="99"
-              value="40"
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  shadow: e.target.value,
+                })
+              }
+              value={settings.shadow}
               className="range range-primary"
             />
           </div>
@@ -58,7 +70,13 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
               type="range"
               min={0}
               max="99"
-              value="40"
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  radius: e.target.value,
+                })
+              }
+              value={settings.radius}
               className="range range-primary"
             />
           </div>
@@ -70,7 +88,6 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
 
 /* eslint-disable @next/next/no-img-element */
 const ImageGenerator = (props) => {
-  console.log(props.image);
   if (!props.image) {
     alert("Pas d'image");
   }
@@ -79,7 +96,7 @@ const ImageGenerator = (props) => {
     <div
       style={{
         display: "flex",
-        // Ajoute le padding
+        padding: `${props.settings.padding}px`,
       }}
     >
       <img
@@ -98,17 +115,17 @@ const ImageGenerator = (props) => {
 export default function Home() {
   const [image, setImage] = useState();
   const [settings, setSettings] = useState({
-    padding: 0,
-    borderRadius: 0,
-    shadow: 0,
+    padding: 10,
+    borderRadius: 10,
+    shadow: 10,
   });
-  console.log(image);
   return (
     <div className="max-w-4xl m-auto  ">
       <div className="flex items-center gap-x-20 justify-center min-h-screen w-full">
         <Settings
           setSettings={setSettings}
           setImage={setImage}
+          settings={settings}
           className="flex-1 w-1/2"
         />
         <div className="flex-1 text-center w-1/2 h-fit border p-5 rounded-md">
