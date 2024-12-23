@@ -6,8 +6,6 @@ const convertSVGToPNG = (() => {
     return;
   }
 
-  console.log("Start worker", import.meta.url);
-
   const worker = new Worker(new URL("./resvg-worker.js", import.meta.url));
 
   const pending = new Map();

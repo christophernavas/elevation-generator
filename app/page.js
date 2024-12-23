@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import cn from "classnames";
+import { renderPNG } from "./render-png";
+import { ImageGenerator } from "./ImageGenerator";
 
 const Settings = ({ setImage, setSettings, className, settings }) => {
   const handleFileChange = (e) => {
@@ -9,9 +11,15 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      setImage({
-        src: reader.result, // Ici, nous stockons l'image en base64
-      });
+      const img = new Image();
+      img.src = reader.result; // Set the image source to the base64 result
+
+      img.onload = () => {
+        setImage({
+          src: img.src, // Store the image in base64
+          width: img.width, // Store the width of the image
+        });
+      };
     };
 
     if (file) {
@@ -41,7 +49,7 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
               onChange={(e) =>
                 setSettings({
                   ...settings,
-                  padding: e.target.value,
+                  padding: parseInt(e.target.value),
                 })
               }
               value={settings.padding}
@@ -57,7 +65,7 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
               onChange={(e) =>
                 setSettings({
                   ...settings,
-                  shadow: e.target.value,
+                  shadow: parseInt(e.target.value),
                 })
               }
               value={settings.shadow}
@@ -73,7 +81,7 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
               onChange={(e) =>
                 setSettings({
                   ...settings,
-                  radius: e.target.value,
+                  radius: parseInt(e.target.value),
                 })
               }
               value={settings.radius}
@@ -86,51 +94,50 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
   );
 };
 
-/* eslint-disable @next/next/no-img-element */
-const ImageGenerator = (props) => {
-  if (!props.image) {
-    alert("Pas d'image");
-  }
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        padding: `${props.settings.padding}px`,
-      }}
-    >
-      <img
-        src={props.image.src}
-        alt="Image"
-        style={{
-          // Ajoute le border-radius et le boxShadow
-          boxShadow: `0 0 ${props.settings.shadow}px rgba(0,0,0,.${props.settings.shadow})`,
-          borderRadius: `${props.settings.radius}px`,
-        }}
-      />
-    </div>
-  );
-};
-
 export default function Home() {
   const [image, setImage] = useState();
   const [settings, setSettings] = useState({
     padding: 10,
-    borderRadius: 10,
+    radius: 10,
     shadow: 10,
   });
+
   return (
-    <div className="max-w-4xl m-auto  ">
-      <div className="flex items-center gap-x-20 justify-center min-h-screen w-full">
+    <div className="lg:max-w-4xl m-auto p-10 lg:p-0">
+      <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20 justify-center min-h-screen w-full">
         <Settings
           setSettings={setSettings}
           setImage={setImage}
           settings={settings}
-          className="flex-1 w-1/2"
+          className="lg:flex-1 lg:w-1/2"
         />
-        <div className="flex-1 text-center w-1/2 h-fit border p-5 rounded-md">
+        <div className="lg:flex-1 text-center lg:w-1/2 border p-5 rounded-md">
           {image ? (
-            <ImageGenerator settings={settings} image={image} />
+            <>
+              <ImageGenerator settings={settings} image={image} />
+              <button
+                className="btn"
+                disabled={!image}
+                onClick={async () => {
+                  const { blob } = await renderPNG({
+                    image,
+                    settings,
+                  });
+                  const url = URL.createObjectURL(blob);
+
+                  // Créez un lien temporaire pour le téléchargement
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "image.png"; // Nom du fichier à télécharger
+                  document.body.appendChild(a); // Ajoutez le lien au DOM
+                  a.click(); // Simulez un clic sur le lien
+                  document.body.removeChild(a); // Supprimez le lien du DOM
+                  URL.revokeObjectURL(url); // Libérez l'URL de l'objet
+                }}
+              >
+                Download
+              </button>
+            </>
           ) : (
             <p>Upload an image first.</p>
           )}
