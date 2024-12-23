@@ -1,9 +1,6 @@
 import * as resvg from "@resvg/resvg-wasm";
 
-const wasmPath = new URL(
-  "https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm",
-  import.meta.url
-);
+const wasmPath = new URL("https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm");
 
 void fetch(wasmPath).then((res) => resvg.initWasm(res));
 
