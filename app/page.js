@@ -62,7 +62,7 @@ const Settings = ({ setImage, setSettings, className, settings }) => {
             <input
               type="range"
               min={0}
-              max="99"
+              max="40"
               onChange={(e) =>
                 setSettings({
                   ...settings,
@@ -116,60 +116,69 @@ export default function Home() {
         <div className="flex lg:flex-1 gap-5 flex-col lg:w-1/2 items-center">
           <div className=" text-center  border p-5 rounded-md">
             {image ? (
-              <>
+              <div style={{ maxWidth: 400 }}>
                 <ImageGenerator settings={settings} image={image} />
-              </>
+              </div>
             ) : (
               <p>Upload an image first.</p>
             )}
           </div>
           <div className="flex gap-x-5">
-            <button
-              className="btn"
-              disabled={!image || loaded}
-              onClick={async () => {
-                setLoaded(true);
-                const { blob } = await renderPNG({
-                  image,
-                  settings,
-                });
-                const url = URL.createObjectURL(blob);
-                setLoaded(false);
+            {loaded ? (
+              <div className="flex justify-center items-center">
+                <div className="border-4 border-t-4 rounded-full w-12 h-12 animate-spin border-t-primary"></div>
+              </div>
+            ) : (
+              <>
+                {" "}
+                <button
+                  className="btn"
+                  onClick={async () => {
+                    setLoaded(true);
+                    const { blob } = await renderPNG({
+                      image,
+                      settings,
+                    });
+                    const url = URL.createObjectURL(blob);
+                    setLoaded(false);
 
-                // Créez un lien temporaire pour le téléchargement
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = image.name; // Nom du fichier à télécharger
-                document.body.appendChild(a); // Ajoutez le lien au DOM
-                a.click(); // Simulez un clic sur le lien
-                document.body.removeChild(a); // Supprimez le lien du DOM
-                URL.revokeObjectURL(url); // Libérez l'URL de l'objet
-              }}
-            >
-              Download
-              {loaded ? (
-                <div className="flex justify-center items-center">
-                  <div className="border-4 border-t-4 rounded-full w-4 h-4 animate-spin border-t-primary"></div>
-                </div>
-              ) : null}
-            </button>
-            <button
-              className="btn btn-ghost btn-outline"
-              disabled={!image}
-              onClick={async () => {
-                if (image) {
-                  const { blob } = await renderPNG({
-                    image,
-                    settings,
-                  });
-                  const item = new ClipboardItem({ "image/png": blob });
-                  await navigator.clipboard.write([item]);
-                  alert("Image copied to clipboard!"); // Alerte pour confirmer la copie
-                }
-              }}
-            >
-              Copy
-            </button>
+                    // Créez un lien temporaire pour le téléchargement
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = image.name; // Nom du fichier à télécharger
+                    document.body.appendChild(a); // Ajoutez le lien au DOM
+                    a.click(); // Simulez un clic sur le lien
+                    document.body.removeChild(a); // Supprimez le lien du DOM
+                    URL.revokeObjectURL(url); // Libérez l'URL de l'objet
+                  }}
+                >
+                  Download
+                  {loaded ? (
+                    <div className="flex justify-center items-center">
+                      <div className="border-4 border-t-4 rounded-full w-4 h-4 animate-spin border-t-primary"></div>
+                    </div>
+                  ) : null}
+                </button>
+                <button
+                  className="btn btn-ghost btn-outline"
+                  onClick={async () => {
+                    if (image) {
+                      setLoaded(true);
+                      const { blob } = await renderPNG({
+                        image,
+                        settings,
+                      });
+                      const item = new ClipboardItem({ "image/png": blob });
+                      await navigator.clipboard.write([item]);
+                      alert("Image copied to clipboard!"); // Alerte pour confirmer la copie
+                      setLoaded(false);
+                    }
+                  }}
+                >
+                  Copy
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
